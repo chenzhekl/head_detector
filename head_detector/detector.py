@@ -63,10 +63,12 @@ class HeadDetector:
         scale = cache["scale"]
         bboxes_xyxy = bboxes_xyxy.cpu().numpy()
         scores = scores.cpu().numpy()
+        flame_params[:, -4] -= padding[0]  # translation x
+        flame_params[:, -3] -= padding[1]  # translation y
+        flame_params[:, -4:-1] /= scale  # translation x,y,z
+        flame_params[:, -1] /= scale  # scale
         _, _, final_3d_pts = reproject_spatial_vertices(self._flame, flame_params, to_2d=False)
-        final_3d_pts[:, :, 0] -= padding[0]
-        final_3d_pts[:, :, 1] -= padding[1]
-        final_3d_pts = (final_3d_pts / scale).cpu().numpy()
+        final_3d_pts = final_3d_pts.cpu().numpy()
         bboxes_xyxy = bboxes_xyxy.clip(0, self._image_size)
         bboxes_xyxy[:, [0, 2]] -= padding[0]
         bboxes_xyxy[:, [1, 3]] -= padding[1]
@@ -76,7 +78,6 @@ class HeadDetector:
         flame_params = flame_params.detach().cpu()
         for bbox, score, params, vertices in zip(bboxes_xyxy, scores, flame_params, final_3d_pts):
             params = FlameParams.from_3dmm(params.unsqueeze(0))
-            params.scale = params.scale / scale
             box = Bbox(x=bbox[0], y=bbox[1], w=bbox[2] - bbox[0], h=bbox[3] - bbox[1])
             result.append(
                 HeadMetadata(
