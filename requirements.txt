@@ -3,7 +3,7 @@ torchvision~=0.15
 opencv-contrib-python-headless~=4.9
 huggingface_hub~=0.20
 Pillow>=10.2
-numpy~=2.0
+numpy>=1.23.5
 smplx~=0.1
 chumpy @ git+https://github.com/chenzhekl/chumpy.git@2962fc0e5477e6c0ce1a6a7f10cf5672e201d69b
 scipy~=1.10
